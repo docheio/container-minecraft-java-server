@@ -59,7 +59,7 @@ async function exec() {
 		mem = 8192 + 400;
 	}
 	// prettier-ignore
-	const proc = child.spawn(`java -Xmx ${mem - 400}M -Xms ${mem - 400}M minecraft.jar nogui`, { cwd: "./mount/minecraft" });
+	const proc = child.spawn(`java -Xmx ${(mem - 400).toString().split(".")[0]}M -Xms ${(mem - 400).toString().split(".")[0]}M minecraft.jar nogui`, { cwd: "./mount/minecraft" });
 
 	reader.on("line", (line) => {
 		proc.stdin.write(`${line}\n`);
