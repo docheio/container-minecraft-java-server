@@ -1,5 +1,5 @@
 FROM archlinux:latest
-RUN pacman --noconfirm -Syyu git nodejs npm yarn unzip
+RUN pacman --noconfirm -Syyu git nodejs yarn jdk-openjdk libxtst
 
 WORKDIR /root
 COPY ./* ./

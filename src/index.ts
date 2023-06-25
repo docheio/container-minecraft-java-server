@@ -12,48 +12,31 @@
 const console = new tslog.Logger();
 
 async function update() {
-	let url = "https://www.minecraft.net/en-us/download/server/bedrock";
-
-	let res = await axios.get(url, {
-		headers: {
-			"User-Agent":
-				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-			Accept:
-				"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-		},
-	});
+	let url = "https://api.purpurmc.org/v2/purpur/";
+	let res = await axios.get(url);
+	let version = (res.data["versions"] as string[]).sort().reverse()[0];
+	url = `${url}${version}/`;
+	res = await axios.get(url);
+	let build = res.data["builds"]["latest"];
+	url = `${url}${build}/download`;
 
 	// prettier-ignore
-	let reg_data = res.data.match(/https:\/\/minecraft\.azureedge\.net\/bin-linux\/bedrock-server-[0-9.]+\.zip/);
-	if (reg_data && reg_data.length != 0) {
-		url = reg_data[0];
-		child.execSync("mkdir -p ./mount");
-		child.execSync("touch ./version.txt", { cwd: "mount" });
-		if (url != (await fs.readFile("./mount/version.txt", "utf-8"))) {
-			await fs.writeFile("./mount/version.txt", url);
-			child.execSync(`curl -sLo minecraft.zip ${url}`);
-			child.execSync("unzip minecraft.zip -d ./cache");
-			if (existsSync("./mount/minecraft")) {
-				console.info("Updating");
-				child.execSync("rm -rf allowlist.json", { cwd: "./cache" });
-				child.execSync("rm -rf behavior_packs", { cwd: "./cache" });
-				child.execSync("rm -rf permissions.json", { cwd: "./cache" });
-				child.execSync("rm -rf resource_packs", { cwd: "./cache" });
-				child.execSync("rm -rf server.properties", { cwd: "./cache" });
-				child.execSync("rm -rf bedrock_server", { cwd: "./mount/minecraft" });
-				child.execSync("rm -rf *.html", { cwd: "./mount/minecraft" });
-				child.execSync("rm -rf *.debug", { cwd: "./mount/minecraft" });
-				child.execSync("rm -rf *.txt", { cwd: "./mount/minecraft" });
-				child.execSync("rm -rf config", { cwd: "./mount/minecraft" });
-				child.execSync("rm -rf definitions", { cwd: "./mount/minecraft" });
-			}
-			child.execSync("mkdir -p ./mount/minecraft");
-			child.execSync("cp -r ./cache/* ./mount/minecraft/");
-			child.execSync("rm -rf ./cache minecraft.zip");
-			child.execSync("echo 'emit-server-telemetry=true' >> server.properties", {
-				cwd: "./mount/minecraft",
-			});
+	child.execSync("mkdir -p ./mount/minecraft");
+	child.execSync("touch ./version.txt", { cwd: "mount" });
+	if (url != (await fs.readFile("./mount/version.txt", "utf-8"))) {
+		await fs.writeFile("./mount/version.txt", url);
+		child.execSync("rm -rf minecraft.jar", { cwd: "./mount/minecraft" });
+		// prettier-ignore
+		child.execSync(`curl -sLo minecraft.jar ${url}`, { cwd: "./mount/minecraft" });
+		if (existsSync("./mount/minecraft")) {
+			console.info("Updating");
+			child.execSync("rm -rf ./cache", { cwd: "./mount/minecraft" });
+			child.execSync("rm -rf ./logs", { cwd: "./mount/minecraft" });
+			child.execSync("rm -rf ./versions", { cwd: "./mount/minecraft" });
+			child.execSync("rm -rf ./libraries", { cwd: "./mount/minecraft" });
 		}
+		// prettier-ignore
+		child.execSync("echo 'eureka=true' > eula.txt", { cwd: "./mount/minecraft" });
 	}
 }
 
@@ -61,8 +44,9 @@ async function exec() {
 	process.stdin.setEncoding("utf8");
 
 	const reader = readline.createInterface({ input: process.stdin });
+	const mem = Number(child.execSync("cat /sys/fs/cgroup/memory.max").toString()) / 1000000;
 	// prettier-ignore
-	const proc = child.spawn("./bedrock_server", [], { cwd: "./mount/minecraft" });
+	const proc = child.spawn(`java -Xmx ${mem - 400}M -Xms ${mem - 400}M minecraft.jar nogui`, { cwd: "./mount/minecraft" });
 
 	reader.on("line", (line) => {
 		proc.stdin.write(`${line}\n`);
