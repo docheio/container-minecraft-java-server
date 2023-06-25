@@ -1,4 +1,5 @@
 FROM archlinux:latest
+RUN echo Server = https://mirror.cat.net/archlinux/\$repo/os/\$arch > /etc/pacman.d/mirrorlist 
 RUN pacman --noconfirm -Syyu git
 RUN pacman --noconfirm -Syyu nodejs
 RUN pacman --noconfirm -Syyu npm
