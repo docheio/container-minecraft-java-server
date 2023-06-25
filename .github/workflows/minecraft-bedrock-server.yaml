@@ -41,7 +41,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/docheio/container-minecraft-bedrock-server:1.0.0
+        tags: ghcr.io/docheio/container-minecraft-java-server:1.0.0
         labels: ${{ steps.meta.outputs.labels }}
 
     - name: Build and Push Container Images
@@ -50,5 +50,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/docheio/container-minecraft-bedrock-server:latest
+        tags: ghcr.io/docheio/container-minecraft-java-server:latest
         labels: ${{ steps.meta.outputs.labels }}
