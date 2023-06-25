@@ -1,4 +1,5 @@
 FROM archlinux:latest
+RUN pacman --noconfirm -Syyu git nodejs npm yarn jdk-openjdk libxtst
 WORKDIR /root
 COPY ./* ./
-CMD bash -c "pacman --noconfirm -Syyu git nodejs yarn jdk-openjdk libxtst && yarn run all"
+CMD yarn run all
