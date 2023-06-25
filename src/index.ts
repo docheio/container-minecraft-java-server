@@ -58,8 +58,17 @@ async function exec() {
 		console.warn("Too many memory size. will be resized to 8192M.");
 		mem = 8192 + 400;
 	}
-	// prettier-ignore
-	const proc = child.spawn(`java`, [`-Xmx${(mem - 400).toString().split(".")[0]}M`, `-Xms${(mem - 400).toString().split(".")[0]}M`, `-jar`, `minecraft.jar`, `nogui`], { cwd: "./mount/minecraft" });
+	const proc = child.spawn(
+		`java`,
+		[
+			`-Xmx${(mem - 400).toString().split(".")[0]}M`,
+			`-Xms${(mem - 400).toString().split(".")[0]}M`,
+			`-jar`,
+			`minecraft.jar`,
+			`nogui`,
+		],
+		{ cwd: "./mount/minecraft" }
+	);
 
 	reader.on("line", (line) => {
 		proc.stdin.write(`${line}\n`);
@@ -102,7 +111,7 @@ async function backup() {
 				child.execSync(`rm -rf ${files[i--]}`, { cwd: "./mount/backup" });
 		}
 		child.execSync(
-			`tar zcfp ../backup/${Date.now()}.tar.gz allowlist.json behavior_packs permissions.json resource_packs server.properties`,
+			`tar zcfp ../backup/${Date.now()}.tar.gz permissions.json server.properties world*`,
 			{ cwd: "./mount/minecraft" }
 		);
 	});
