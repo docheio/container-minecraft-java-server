@@ -1,5 +1,4 @@
 FROM archlinux:latest
-RUN pacman --noconfirm -Syyu git nodejs npm yarn jre-openjdk libxtst
 RUN pacman --noconfirm -Syyu git
 RUN pacman --noconfirm -Syyu nodejs
 RUN pacman --noconfirm -Syyu npm
