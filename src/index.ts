@@ -8,6 +8,7 @@
 /* prettier-ignore */ import { sig_end_kit }	from "./handler/sig_handler";
 /* prettier-ignore */ import { sleep }			from "./module/sleep";
 /* prettier-ignore */ import { mini_shell }		from "./module/mini_shell";
+import { get_mem } from "./module/get_mem";
 
 const console = new tslog.Logger();
 
@@ -44,7 +45,19 @@ async function exec() {
 	process.stdin.setEncoding("utf8");
 
 	const reader = readline.createInterface({ input: process.stdin });
-	const mem = Number(child.execSync("cat /sys/fs/cgroup/memory.max").toString()) / 1000000;
+	let mem = await get_mem();
+	if (Number.isNaN(mem)) {
+		console.error("Failed to detect memory size.");
+		process.exit(1);
+	}
+	if (mem <= 1024 + 400) {
+		console.error("Too few memory size.");
+		process.exit(1);
+	}
+	if (mem >= 8192 + 400) {
+		console.warn("Too many memory size. will be resized to 8192M.")
+		mem = 8192 + 400;
+	}
 	// prettier-ignore
 	const proc = child.spawn(`java -Xmx ${mem - 400}M -Xms ${mem - 400}M minecraft.jar nogui`, { cwd: "./mount/minecraft" });
 
