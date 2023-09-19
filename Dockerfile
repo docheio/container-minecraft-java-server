@@ -6,7 +6,7 @@ COPY . .
 RUN git submodule init
 
 WORKDIR /build/get-mem-size
-RUN make
+RUN make all
 
 FROM archlinux:latest AS installation
 
