@@ -1,0 +1,1 @@
+curl https://api.purpurmc.org/v2/purpur/ | jq
