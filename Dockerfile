@@ -3,7 +3,7 @@ FROM archlinux:latest AS build
 WORKDIR /build
 RUN pacman --noconfirm -Syyu git make gcc
 COPY . .
-RUN git submodule init
+RUN git submodule update --init --recursive
 
 WORKDIR /build/get-mem-size
 RUN make all
